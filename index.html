@@ -1,0 +1,78 @@
+<! DOCTYPE html>
+    <html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weather App - Easy Tutorials</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+
+        <div class="card">
+            <div class="search">
+                <input type="text" placeholder="enter city name" spellcheck="false">
+                <button><img src="images/search.png"></button>
+            </div>
+            <div class="weather">
+                <img src="images/rain.png" class="weather-icon">
+                <h1 class="temp">22°c</h1>
+                <h2 class="city">New York</h2>
+                <div class="details">
+                    <div class="col">
+                        <img src="images/humidity.png">
+                        <div>
+                            <p class="humidity">50%</p>
+                            <p>Humidity</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="images/wind.png">
+                        <div>
+                            <p class="wind">15 km/h</p>
+                            <p>Wind Speed</p>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <script >
+            const weather_apiurl_1="https://api.open-meteo.com/v1/forecast?"; //latitude=52.52&longitude=13.41
+            const weather_apiurl_2="&current=temperature_2m,wind_speed_10m,relative_humidity_2m,rain,showers,snowfall,apparent_temperature,precipitation,cloud_cover";
+            const apikey="";
+
+            const latitude_apiurl="https://geocoding-api.open-meteo.com/v1/search?";//name=Berlin&format=json
+            
+            var search=document.querySelector(".search button");
+            /*search.addEventListener("click",()=>{
+                var city=document.querySelector(".search input").value;
+                if(city==="")
+                return;
+                fetch(latitude_apiurl).then(response=>response.json()).then(data=>{
+                    console.log(data);
+                });
+            });*/
+            
+            search.addEventListener("click", async()=>{
+                const city=document.querySelector(".search input").value;
+                if(city===""){
+                    const place_value=document.querySelector(".search input").setAttribute("placeholder","please enter a valid a city name");
+                    return place_value;
+                }
+                const api_obj= await fetch(latitude_apiurl+'name='+city+'&format=json');
+                const data=await api_obj.json();
+                console.log(data);
+                if(data.results){
+                    const latitude=data.results[0].latitude;
+                    const longitude=data.results[0].longitude;
+                    const weather_obj=await fetch(weather_apiurl_1+'&latitude='+latitude+'&longitude='+longitude+weather_apiurl_2);
+                    const weather_data=await weather_obj.json();
+                    console.log(weather_data);
+                    document.querySelector(".temp").innerText=weather_data.current.temperature_2m+"°c";
+                    document.querySelector(".wind").innerText=weather_data.current.wind_speed_10m+" km/h";
+                    document.querySelector(".humidity").innerText=weather_data.current.relative_humidity_2m+"%";
+                    document.querySelector(".city").innerText=data.results[0].name;
+                }
+            });
+        </script>
+    </body>
+    </html>
